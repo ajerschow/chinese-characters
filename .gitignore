@@ -1,3 +1,11 @@
 node_modules
 dist
-hsk1-cache.json
+public/hsk1-cache.json
+
+# API keys and secrets
+.env
+.env.*
+*.env
+secrets.json
+config.local.js
+config.local.json

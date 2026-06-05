@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist",
+    "push": "git push origin main",
+    "ship": "npm run push && npm run deploy"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",
