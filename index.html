@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉字学习 · HSK 1 Character Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #faf8f4;
+    --bg2: #f2ede4;
+    --bg3: #ebe4d8;
+    --surface: #ffffff;
+    --ink: #1c1410;
+    --ink2: #4a3728;
+    --ink3: #8a7060;
+    --ink4: #b8a898;
+    --red: #c0392b;
+    --red-bg: #fdf0ee;
+    --gold: #9a6f1a;
+    --gold-bg: #fdf6e3;
+    --green: #2e7d4a;
+    --green-bg: #edf7f1;
+    --blue: #1a5fa0;
+    --blue-bg: #edf4fc;
+    --purple: #6b3fa0;
+    --purple-bg: #f4eefb;
+    --border: rgba(60,40,20,0.1);
+    --border2: rgba(60,40,20,0.18);
+    --sidebar-w: 320px;
+    --header-h: 56px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1612;
+      --bg2: #221e19;
+      --bg3: #2c271f;
+      --surface: #252018;
+      --ink: #f0ebe2;
+      --ink2: #c8b89a;
+      --ink3: #8a7a65;
+      --ink4: #5a4e40;
+      --border: rgba(255,220,160,0.08);
+      --border2: rgba(255,220,160,0.15);
+      --red-bg: #2a1410;
+      --gold-bg: #241d0a;
+      --green-bg: #0d2018;
+      --blue-bg: #0d1a2a;
+      --purple-bg: #1a0f2a;
+    }
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: 'Noto Sans SC', -apple-system, sans-serif; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; }
+
+  /* ── Header ── */
+  .app-header {
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    padding: 0 1.25rem;
+    gap: 10px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .logo { display: flex; align-items: baseline; gap: 10px; flex-shrink: 0; }
+  .logo-cn { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: 0.05em; }
+  .logo-sep { width: 1px; height: 18px; background: var(--border2); flex-shrink: 0; }
+  .logo-en { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .hbadge {
+    font-size: 11px; padding: 2px 9px; border-radius: 99px;
+    background: var(--gold-bg); color: var(--gold);
+    border: 1px solid rgba(154,111,26,0.2); font-weight: 500; white-space: nowrap;
+  }
+  .hbadge.green { background: var(--green-bg); color: var(--green); border-color: rgba(46,125,74,0.2); }
+
+  /* cache file button */
+  .cache-btn {
+    font-size: 11px; padding: 3px 10px; border-radius: 6px;
+    border: 1px solid var(--border2); background: var(--bg2); color: var(--ink3);
+    cursor: pointer; white-space: nowrap; font-family: inherit;
+    transition: background 0.15s;
+  }
+  .cache-btn:hover { background: var(--bg3); }
+  .cache-btn.linked { border-color: rgba(46,125,74,0.4); color: var(--green); background: var(--green-bg); }
+
+  /* ── Layout ── */
+  .app-body { flex: 1; display: flex; overflow: hidden; }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: var(--sidebar-w); flex-shrink: 0; background: var(--surface);
+    border-right: 1px solid var(--border2); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .stab {
+    flex: 1; padding: 9px 4px; font-size: 12px; font-weight: 500; text-align: center;
+    cursor: pointer; border: none; background: none; color: var(--ink3);
+    border-bottom: 2px solid transparent; transition: all 0.15s; font-family: inherit;
+  }
+  .stab.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .stab-panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .stab-panel.active { display: flex; }
+
+  .sidebar-controls { padding: 10px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; stroke: var(--ink4); fill: none; pointer-events: none; }
+  .search-wrap input {
+    width: 100%; padding: 7px 10px 7px 28px; font-size: 12px; font-family: 'Noto Sans SC', sans-serif;
+    border: 1px solid var(--border2); border-radius: 7px; background: var(--bg2); color: var(--ink); outline: none; transition: border-color 0.15s;
+  }
+  .search-wrap input:focus { border-color: var(--blue); background: var(--surface); }
+  .search-wrap input::placeholder { color: var(--ink4); }
+  .filter-row { display: flex; gap: 5px; }
+  .filter-row select {
+    flex: 1; padding: 5px 6px; font-size: 11px; font-family: 'Noto Sans SC', sans-serif;
+    border: 1px solid var(--border2); border-radius: 7px; background: var(--bg2); color: var(--ink); outline: none; cursor: pointer;
+  }
+  .char-count { font-size: 10.5px; color: var(--ink4); text-align: right; }
+
+  /* ── Character grid ── */
+  .char-scroll { flex: 1; overflow-y: auto; padding: 8px; }
+  .char-scroll::-webkit-scrollbar { width: 3px; }
+  .char-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .char-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px;
+    padding: 8px 3px 6px; cursor: pointer; text-align: center;
+    transition: all 0.15s; position: relative; overflow: hidden;
+  }
+  .char-btn:hover { border-color: var(--border2); background: var(--bg2); transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+  .char-btn.active { border-color: var(--blue); background: var(--blue-bg); box-shadow: 0 0 0 2px rgba(26,95,160,0.15); }
+  .char-btn.active .cb-char { color: var(--blue); }
+  .char-btn.cached::after { content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--green); opacity: 0.7; }
+  .cb-char { font-family: 'Noto Serif SC', serif; font-size: 20px; line-height: 1.1; color: var(--ink); display: block; }
+  .cb-pin { font-size: 9px; color: var(--ink3); margin-top: 2px; }
+  .cb-en { font-size: 8.5px; color: var(--ink4); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ── Expressions list ── */
+  .expr-scroll { flex: 1; overflow-y: auto; padding: 8px; }
+  .expr-scroll::-webkit-scrollbar { width: 3px; }
+  .expr-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .expr-list { display: flex; flex-direction: column; gap: 5px; }
+  .expr-btn {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 9px;
+    padding: 9px 11px; cursor: pointer; text-align: left;
+    transition: all 0.15s; position: relative;
+  }
+  .expr-btn:hover { border-color: var(--border2); background: var(--bg2); }
+  .expr-btn.active { border-color: var(--purple); background: var(--purple-bg); }
+  .expr-btn.active .eb-cn { color: var(--purple); }
+  .eb-cn { font-family: 'Noto Serif SC', serif; font-size: 16px; color: var(--ink); margin-bottom: 1px; }
+  .eb-pin { font-size: 10px; color: var(--ink3); font-style: italic; }
+  .eb-en { font-size: 10px; color: var(--ink4); }
+
+  /* ── Detail panel ── */
+  .detail-panel { flex: 1; overflow-y: auto; background: var(--bg); }
+  .detail-panel::-webkit-scrollbar { width: 5px; }
+  .detail-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .detail-empty { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--ink4); }
+  .detail-empty .empty-char { font-family: 'Noto Serif SC', serif; font-size: 80px; opacity: 0.1; line-height: 1; }
+  .detail-empty p { font-size: 14px; }
+
+  /* ── Detail content ── */
+  .detail-content { padding: 1.75rem 2.25rem; max-width: 620px; }
+
+  .detail-hero {
+    display: flex; gap: 1.25rem; align-items: flex-start;
+    margin-bottom: 1.75rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border2);
+  }
+  .hero-char { font-family: 'Noto Serif SC', serif; font-size: 80px; line-height: 1; color: var(--ink); flex-shrink: 0; }
+  .hero-meta { flex: 1; padding-top: 4px; }
+  .hero-pinyin { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 26px; color: var(--ink2); margin-bottom: 5px; }
+  .hero-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .tag { font-size: 10.5px; padding: 2px 8px; border-radius: 99px; font-weight: 500; }
+  .tag-cat { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(26,95,160,0.15); }
+  .tag-stroke { background: var(--bg3); color: var(--ink3); border: 1px solid var(--border2); }
+  .tag-expr { background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(107,63,160,0.15); }
+  .hero-meaning { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .hero-meaning-sub { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 1.6rem; }
+  .section-header { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .section-label { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink4); white-space: nowrap; }
+  .section-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* Radicals */
+  .radicals-grid { display: flex; flex-direction: column; gap: 7px; }
+  .radical-row { display: flex; align-items: flex-start; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 9px 13px; }
+  .radical-char { font-family: 'Noto Serif SC', serif; font-size: 28px; line-height: 1; color: var(--ink); flex-shrink: 0; width: 34px; text-align: center; }
+  .radical-info { flex: 1; }
+  .radical-top { display: flex; align-items: baseline; gap: 7px; margin-bottom: 1px; }
+  .radical-pin { font-size: 12px; font-style: italic; color: var(--ink2); font-family: 'DM Serif Display', serif; }
+  .radical-meaning { font-size: 12px; font-weight: 500; color: var(--ink); }
+  .radical-role { font-size: 11.5px; color: var(--ink3); line-height: 1.5; }
+
+  /* Compound words */
+  .compounds-grid { display: flex; flex-direction: column; gap: 7px; }
+  .compound-row {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 10px 13px;
+  }
+  .compound-top { display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+  .compound-chars { display: flex; gap: 3px; }
+  .compound-char-link {
+    font-family: 'Noto Serif SC', serif; font-size: 20px; line-height: 1; color: var(--blue);
+    cursor: pointer; padding: 1px 3px; border-radius: 4px; transition: background 0.12s;
+    text-decoration: none; border: none; background: none; font-family: 'Noto Serif SC', serif;
+  }
+  .compound-char-link:hover { background: var(--blue-bg); }
+  .compound-char-nolink { font-family: 'Noto Serif SC', serif; font-size: 20px; line-height: 1; color: var(--ink3); padding: 1px 3px; }
+  .compound-pin { font-size: 12px; font-style: italic; color: var(--ink3); font-family: 'DM Serif Display', serif; }
+  .compound-meaning { font-size: 12px; font-weight: 500; color: var(--ink); }
+  .compound-note { font-size: 11.5px; color: var(--ink3); line-height: 1.5; }
+
+  /* Expressions */
+  .expr-detail-box { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 12px 14px; margin-bottom: 7px; }
+  .expr-hero-cn { font-family: 'Noto Serif SC', serif; font-size: 26px; color: var(--ink); display: flex; gap: 2px; flex-wrap: wrap; margin-bottom: 3px; }
+  .expr-hero-char-link {
+    color: var(--purple); cursor: pointer; border-radius: 4px; padding: 0 2px;
+    transition: background 0.12s; border: none; background: none;
+    font-family: 'Noto Serif SC', serif; font-size: inherit;
+  }
+  .expr-hero-char-link:hover { background: var(--purple-bg); }
+  .expr-hero-pin { font-size: 14px; font-style: italic; color: var(--ink3); font-family: 'DM Serif Display', serif; margin-bottom: 3px; }
+  .expr-hero-en { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+  .expr-breakdown { display: flex; flex-direction: column; gap: 4px; }
+  .expr-char-row { display: flex; gap: 8px; align-items: flex-start; padding: 5px 0; border-top: 1px solid var(--border); }
+  .expr-char-glyph { font-family: 'Noto Serif SC', serif; font-size: 22px; color: var(--ink); flex-shrink: 0; width: 28px; }
+  .expr-char-info { flex: 1; }
+  .expr-char-top { display: flex; gap: 6px; align-items: baseline; }
+  .expr-char-pin { font-size: 11px; font-style: italic; color: var(--ink3); font-family: 'DM Serif Display', serif; }
+  .expr-char-meaning { font-size: 11px; font-weight: 500; color: var(--ink); }
+  .expr-char-role { font-size: 11px; color: var(--ink4); }
+  .expr-link-btn {
+    font-size: 10px; padding: 2px 7px; border-radius: 5px;
+    background: var(--purple-bg); color: var(--purple); border: 1px solid rgba(107,63,160,0.2);
+    cursor: pointer; font-family: inherit; flex-shrink: 0; white-space: nowrap;
+    transition: background 0.12s;
+  }
+  .expr-link-btn:hover { background: var(--purple); color: white; }
+  .expr-note { font-size: 12px; color: var(--ink3); line-height: 1.7; margin-top: 6px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+  /* prose / memory / examples */
+  .prose { font-size: 13.5px; line-height: 1.8; color: var(--ink2); }
+  .memory-box { background: var(--green-bg); border: 1px solid rgba(46,125,74,0.2); border-left: 3px solid var(--green); border-radius: 9px; padding: 11px 15px; font-size: 13px; line-height: 1.75; color: var(--green); }
+  .examples { display: flex; flex-direction: column; gap: 8px; }
+  .example { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 11px 14px; }
+  .ex-cn { font-family: 'Noto Serif SC', serif; font-size: 15px; color: var(--ink); margin-bottom: 3px; line-height: 1.5; }
+  .ex-pin { font-size: 11.5px; color: var(--ink3); font-style: italic; margin-bottom: 2px; }
+  .ex-en { font-size: 11.5px; color: var(--ink4); }
+
+  /* loading / error / cache notice */
+  .loading-wrap { padding: 3rem 0; text-align: center; color: var(--ink4); }
+  .loading-spinner { width: 26px; height: 26px; border: 2px solid var(--border2); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-wrap p { font-size: 12.5px; }
+  .error-box { background: var(--red-bg); border: 1px solid rgba(192,57,43,0.2); border-radius: 9px; padding: 11px 14px; font-size: 12.5px; color: var(--red); display: flex; align-items: center; gap: 8px; }
+  .cache-notice { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--green); margin-bottom: 1rem; opacity: 0.8; }
+
+  /* toast */
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(60px);
+    background: var(--ink); color: var(--bg); font-size: 12px; padding: 7px 16px;
+    border-radius: 20px; pointer-events: none; opacity: 0; transition: all 0.3s; z-index: 100; white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 680px) {
+    :root { --sidebar-w: 100vw; }
+    .app-body { flex-direction: column; }
+    .sidebar { width: 100%; height: 240px; border-right: none; border-bottom: 1px solid var(--border2); }
+    .char-grid { grid-template-columns: repeat(5, 1fr); }
+    .detail-content { padding: 1.25rem; }
+    .hero-char { font-size: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">
+    <span class="logo-cn">汉字学习</span>
+    <div class="logo-sep"></div>
+    <span class="logo-en">HSK 1 Study</span>
+  </div>
+  <div class="header-right">
+    <span class="hbadge green" id="cacheStats">0 / 150 cached</span>
+    <button class="cache-btn" id="cacheFileBtn" onclick="handleCacheFile()" title="Link a local cache.json file for persistent storage across sessions">
+      📂 Link cache file
+    </button>
+  </div>
+</header>
+
+<div class="app-body">
+  <aside class="sidebar">
+    <div class="sidebar-tabs">
+      <button class="stab active" onclick="switchTab('chars', this)">Characters</button>
+      <button class="stab" onclick="switchTab('expr', this)">Expressions</button>
+    </div>
+
+    <!-- Characters tab -->
+    <div class="stab-panel active" id="tab-chars">
+      <div class="sidebar-controls">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Character, pinyin, or meaning…" oninput="filterChars()" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="filter-row">
+          <select id="catFilter" onchange="filterChars()">
+            <option value="">All categories</option>
+            <option value="noun">Nouns</option>
+            <option value="verb">Verbs</option>
+            <option value="adj">Adjectives</option>
+            <option value="pronoun">Pronouns</option>
+            <option value="number">Numbers</option>
+            <option value="adv">Adverbs</option>
+            <option value="particle">Particles</option>
+            <option value="question">Questions</option>
+            <option value="phrase">Phrases</option>
+            <option value="measure">Measure words</option>
+          </select>
+          <select id="sortSelect" onchange="filterChars()">
+            <option value="hsk">HSK order</option>
+            <option value="pinyin">Pinyin A–Z</option>
+            <option value="strokes">Strokes</option>
+          </select>
+        </div>
+        <div class="char-count" id="charCount">150 characters</div>
+      </div>
+      <div class="char-scroll">
+        <div class="char-grid" id="charGrid"></div>
+      </div>
+    </div>
+
+    <!-- Expressions tab -->
+    <div class="stab-panel" id="tab-expr">
+      <div class="sidebar-controls">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="exprSearch" placeholder="Search expressions…" oninput="filterExprs()" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="char-count" id="exprCount">32 expressions</div>
+      </div>
+      <div class="expr-scroll">
+        <div class="expr-list" id="exprList"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="detail-panel" id="detailPanel">
+    <div class="detail-empty" id="emptyState">
+      <div class="empty-char">字</div>
+      <p>Select a character or expression to begin</p>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const HSK1 = [
+  {c:"爱",p:"ài",e:"love",s:10,cat:"verb"},
+  {c:"八",p:"bā",e:"eight",s:2,cat:"number"},
+  {c:"爸爸",p:"bàba",e:"dad / father",s:13,cat:"noun"},
+  {c:"杯子",p:"bēizi",e:"cup / glass",s:11,cat:"noun"},
+  {c:"北京",p:"Běijīng",e:"Beijing",s:12,cat:"noun"},
+  {c:"本",p:"běn",e:"(measure word for books)",s:5,cat:"measure"},
+  {c:"不",p:"bù",e:"no / not",s:4,cat:"adv"},
+  {c:"不客气",p:"bú kèqi",e:"you're welcome",s:14,cat:"phrase"},
+  {c:"菜",p:"cài",e:"dish / vegetable",s:11,cat:"noun"},
+  {c:"茶",p:"chá",e:"tea",s:9,cat:"noun"},
+  {c:"吃",p:"chī",e:"eat",s:6,cat:"verb"},
+  {c:"出租车",p:"chūzūchē",e:"taxi",s:22,cat:"noun"},
+  {c:"打电话",p:"dǎ diànhuà",e:"make a phone call",s:19,cat:"phrase"},
+  {c:"大",p:"dà",e:"big / large",s:3,cat:"adj"},
+  {c:"的",p:"de",e:"(possessive particle)",s:8,cat:"particle"},
+  {c:"点",p:"diǎn",e:"o'clock / point",s:9,cat:"noun"},
+  {c:"电脑",p:"diànnǎo",e:"computer",s:21,cat:"noun"},
+  {c:"电视",p:"diànshì",e:"television",s:21,cat:"noun"},
+  {c:"电影",p:"diànyǐng",e:"movie / film",s:22,cat:"noun"},
+  {c:"东西",p:"dōngxi",e:"thing / stuff",s:14,cat:"noun"},
+  {c:"都",p:"dōu",e:"all / both",s:10,cat:"adv"},
+  {c:"读",p:"dú",e:"read / study",s:10,cat:"verb"},
+  {c:"对不起",p:"duìbuqǐ",e:"sorry / excuse me",s:14,cat:"phrase"},
+  {c:"多",p:"duō",e:"many / much",s:6,cat:"adj"},
+  {c:"多少",p:"duōshao",e:"how many / how much",s:9,cat:"question"},
+  {c:"儿子",p:"érzi",e:"son",s:8,cat:"noun"},
+  {c:"二",p:"èr",e:"two",s:2,cat:"number"},
+  {c:"饭店",p:"fàndiàn",e:"hotel / restaurant",s:17,cat:"noun"},
+  {c:"飞机",p:"fēijī",e:"airplane",s:13,cat:"noun"},
+  {c:"分钟",p:"fēnzhōng",e:"minute",s:14,cat:"noun"},
+  {c:"高兴",p:"gāoxìng",e:"happy / glad",s:18,cat:"adj"},
+  {c:"个",p:"gè",e:"(general measure word)",s:3,cat:"measure"},
+  {c:"工作",p:"gōngzuò",e:"work / job",s:16,cat:"noun"},
+  {c:"狗",p:"gǒu",e:"dog",s:8,cat:"noun"},
+  {c:"汉语",p:"Hànyǔ",e:"Chinese language",s:16,cat:"noun"},
+  {c:"好",p:"hǎo",e:"good / well",s:6,cat:"adj"},
+  {c:"号",p:"hào",e:"number / date",s:5,cat:"noun"},
+  {c:"喝",p:"hē",e:"drink",s:12,cat:"verb"},
+  {c:"和",p:"hé",e:"and / with",s:8,cat:"particle"},
+  {c:"很",p:"hěn",e:"very",s:9,cat:"adv"},
+  {c:"后面",p:"hòumiàn",e:"behind / back",s:15,cat:"noun"},
+  {c:"回",p:"huí",e:"return / go back",s:6,cat:"verb"},
+  {c:"会",p:"huì",e:"can / will / know how",s:6,cat:"verb"},
+  {c:"几",p:"jǐ",e:"how many / several",s:2,cat:"question"},
+  {c:"家",p:"jiā",e:"home / family",s:10,cat:"noun"},
+  {c:"叫",p:"jiào",e:"be called / call",s:5,cat:"verb"},
+  {c:"今天",p:"jīntiān",e:"today",s:9,cat:"noun"},
+  {c:"九",p:"jiǔ",e:"nine",s:2,cat:"number"},
+  {c:"开",p:"kāi",e:"open / drive / start",s:4,cat:"verb"},
+  {c:"看",p:"kàn",e:"look / watch / read",s:9,cat:"verb"},
+  {c:"看见",p:"kànjiàn",e:"see / catch sight of",s:16,cat:"verb"},
+  {c:"块",p:"kuài",e:"yuan (money) / lump",s:7,cat:"measure"},
+  {c:"来",p:"lái",e:"come",s:7,cat:"verb"},
+  {c:"老师",p:"lǎoshī",e:"teacher",s:14,cat:"noun"},
+  {c:"了",p:"le",e:"(completed action particle)",s:2,cat:"particle"},
+  {c:"冷",p:"lěng",e:"cold",s:7,cat:"adj"},
+  {c:"里",p:"lǐ",e:"inside / within",s:7,cat:"noun"},
+  {c:"六",p:"liù",e:"six",s:4,cat:"number"},
+  {c:"妈妈",p:"māma",e:"mom / mother",s:13,cat:"noun"},
+  {c:"买",p:"mǎi",e:"buy",s:6,cat:"verb"},
+  {c:"猫",p:"māo",e:"cat",s:11,cat:"noun"},
+  {c:"没关系",p:"méi guānxi",e:"it doesn't matter",s:18,cat:"phrase"},
+  {c:"没有",p:"méiyǒu",e:"not have / don't have",s:10,cat:"verb"},
+  {c:"米饭",p:"mǐfàn",e:"cooked rice",s:12,cat:"noun"},
+  {c:"明天",p:"míngtiān",e:"tomorrow",s:13,cat:"noun"},
+  {c:"名字",p:"míngzi",e:"name",s:12,cat:"noun"},
+  {c:"哪",p:"nǎ",e:"which",s:9,cat:"question"},
+  {c:"哪儿",p:"nǎr",e:"where",s:9,cat:"question"},
+  {c:"那",p:"nà",e:"that",s:6,cat:"pronoun"},
+  {c:"呢",p:"ne",e:"(sentence-final particle)",s:8,cat:"particle"},
+  {c:"能",p:"néng",e:"can / able to",s:10,cat:"verb"},
+  {c:"你",p:"nǐ",e:"you",s:7,cat:"pronoun"},
+  {c:"你好",p:"nǐ hǎo",e:"hello",s:13,cat:"phrase"},
+  {c:"年",p:"nián",e:"year",s:6,cat:"noun"},
+  {c:"女儿",p:"nǚér",e:"daughter",s:8,cat:"noun"},
+  {c:"朋友",p:"péngyou",e:"friend",s:14,cat:"noun"},
+  {c:"漂亮",p:"piàoliang",e:"pretty / beautiful",s:22,cat:"adj"},
+  {c:"苹果",p:"píngguǒ",e:"apple",s:17,cat:"noun"},
+  {c:"七",p:"qī",e:"seven",s:2,cat:"number"},
+  {c:"钱",p:"qián",e:"money",s:10,cat:"noun"},
+  {c:"前面",p:"qiánmiàn",e:"front / in front of",s:16,cat:"noun"},
+  {c:"请",p:"qǐng",e:"please / invite",s:10,cat:"verb"},
+  {c:"去",p:"qù",e:"go",s:5,cat:"verb"},
+  {c:"热",p:"rè",e:"hot",s:10,cat:"adj"},
+  {c:"人",p:"rén",e:"person / people",s:2,cat:"noun"},
+  {c:"认识",p:"rènshi",e:"know / recognize",s:14,cat:"verb"},
+  {c:"日",p:"rì",e:"sun / day / date",s:4,cat:"noun"},
+  {c:"三",p:"sān",e:"three",s:3,cat:"number"},
+  {c:"商店",p:"shāngdiàn",e:"shop / store",s:16,cat:"noun"},
+  {c:"上",p:"shàng",e:"up / above / on",s:3,cat:"noun"},
+  {c:"上午",p:"shàngwǔ",e:"morning (a.m.)",s:10,cat:"noun"},
+  {c:"少",p:"shǎo",e:"few / little",s:4,cat:"adj"},
+  {c:"谁",p:"shéi",e:"who",s:10,cat:"question"},
+  {c:"什么",p:"shénme",e:"what",s:8,cat:"question"},
+  {c:"十",p:"shí",e:"ten",s:2,cat:"number"},
+  {c:"时候",p:"shíhou",e:"time / moment / when",s:12,cat:"noun"},
+  {c:"是",p:"shì",e:"be / is / am / are",s:9,cat:"verb"},
+  {c:"书",p:"shū",e:"book",s:4,cat:"noun"},
+  {c:"水",p:"shuǐ",e:"water",s:4,cat:"noun"},
+  {c:"水果",p:"shuǐguǒ",e:"fruit",s:12,cat:"noun"},
+  {c:"睡觉",p:"shuìjiào",e:"sleep",s:18,cat:"verb"},
+  {c:"说话",p:"shuōhuà",e:"speak / talk",s:16,cat:"verb"},
+  {c:"四",p:"sì",e:"four",s:5,cat:"number"},
+  {c:"岁",p:"suì",e:"year(s) old",s:6,cat:"noun"},
+  {c:"他",p:"tā",e:"he / him",s:5,cat:"pronoun"},
+  {c:"她",p:"tā",e:"she / her",s:6,cat:"pronoun"},
+  {c:"太",p:"tài",e:"too / extremely",s:4,cat:"adv"},
+  {c:"天气",p:"tiānqì",e:"weather",s:10,cat:"noun"},
+  {c:"听",p:"tīng",e:"listen / hear",s:7,cat:"verb"},
+  {c:"同学",p:"tóngxué",e:"classmate",s:15,cat:"noun"},
+  {c:"喂",p:"wèi",e:"hello (on phone) / hey",s:12,cat:"noun"},
+  {c:"我",p:"wǒ",e:"I / me",s:7,cat:"pronoun"},
+  {c:"我们",p:"wǒmen",e:"we / us",s:10,cat:"pronoun"},
+  {c:"五",p:"wǔ",e:"five",s:4,cat:"number"},
+  {c:"下",p:"xià",e:"down / below / under",s:3,cat:"noun"},
+  {c:"下午",p:"xiàwǔ",e:"afternoon (p.m.)",s:10,cat:"noun"},
+  {c:"下雨",p:"xià yǔ",e:"rain (it rains)",s:11,cat:"verb"},
+  {c:"先生",p:"xiānsheng",e:"mister / husband",s:12,cat:"noun"},
+  {c:"现在",p:"xiànzài",e:"now / currently",s:13,cat:"noun"},
+  {c:"想",p:"xiǎng",e:"want / think / miss",s:13,cat:"verb"},
+  {c:"小",p:"xiǎo",e:"small / little",s:3,cat:"adj"},
+  {c:"小姐",p:"xiǎojie",e:"miss / young lady",s:11,cat:"noun"},
+  {c:"些",p:"xiē",e:"some / a few",s:8,cat:"measure"},
+  {c:"写",p:"xiě",e:"write",s:5,cat:"verb"},
+  {c:"谢谢",p:"xièxie",e:"thank you",s:17,cat:"phrase"},
+  {c:"星期",p:"xīngqī",e:"week / day of week",s:16,cat:"noun"},
+  {c:"学生",p:"xuésheng",e:"student",s:13,cat:"noun"},
+  {c:"学习",p:"xuéxí",e:"study / learn",s:15,cat:"verb"},
+  {c:"学校",p:"xuéxiào",e:"school",s:20,cat:"noun"},
+  {c:"一",p:"yī",e:"one",s:1,cat:"number"},
+  {c:"一点儿",p:"yīdiǎnr",e:"a little bit",s:14,cat:"adv"},
+  {c:"衣服",p:"yīfu",e:"clothes",s:15,cat:"noun"},
+  {c:"医生",p:"yīshēng",e:"doctor",s:18,cat:"noun"},
+  {c:"医院",p:"yīyuàn",e:"hospital",s:18,cat:"noun"},
+  {c:"椅子",p:"yǐzi",e:"chair",s:18,cat:"noun"},
+  {c:"有",p:"yǒu",e:"have / there is",s:6,cat:"verb"},
+  {c:"语言",p:"yǔyán",e:"language",s:21,cat:"noun"},
+  {c:"月",p:"yuè",e:"month / moon",s:4,cat:"noun"},
+  {c:"在",p:"zài",e:"be at / in / on",s:6,cat:"verb"},
+  {c:"再见",p:"zàijiàn",e:"goodbye",s:13,cat:"phrase"},
+  {c:"怎么",p:"zěnme",e:"how / why",s:9,cat:"question"},
+  {c:"怎么样",p:"zěnmeyàng",e:"how about / how is it",s:12,cat:"question"},
+  {c:"这",p:"zhè",e:"this",s:6,cat:"pronoun"},
+  {c:"中国",p:"Zhōngguó",e:"China",s:16,cat:"noun"},
+  {c:"中午",p:"zhōngwǔ",e:"noon / midday",s:11,cat:"noun"},
+  {c:"住",p:"zhù",e:"live / stay / reside",s:7,cat:"verb"},
+  {c:"桌子",p:"zhuōzi",e:"table / desk",s:15,cat:"noun"},
+  {c:"字",p:"zì",e:"character / word",s:6,cat:"noun"},
+  {c:"昨天",p:"zuótiān",e:"yesterday",s:16,cat:"noun"},
+  {c:"坐",p:"zuò",e:"sit / ride (transport)",s:7,cat:"verb"},
+  {c:"做",p:"zuò",e:"do / make",s:11,cat:"verb"},
+];
+
+// Compound words: chars array links to HSK1 characters. null = not in HSK1
+const COMPOUNDS = [
+  { c:"大学", p:"dàxué", e:"university", note:"大 (big) + 学 (study/school) — the 'great place of learning'",
+    chars:[{g:"大",p:"dà",e:"big"},{g:"学",p:"xué",e:"study",link:"学校"}] },
+  { c:"小学", p:"xiǎoxué", e:"primary school", note:"小 (small) + 学 — school for the little ones",
+    chars:[{g:"小",p:"xiǎo",e:"small",link:"小"},{g:"学",p:"xué",e:"study",link:"学校"}] },
+  { c:"中学", p:"zhōngxué", e:"middle / high school", note:"中 (middle) + 学 — school between primary and university",
+    chars:[{g:"中",p:"zhōng",e:"middle",link:"中国"},{g:"学",p:"xué",e:"study",link:"学校"}] },
+  { c:"好吃", p:"hǎochī", e:"delicious / tastes good", note:"好 (good) + 吃 (eat) — literally 'good to eat'",
+    chars:[{g:"好",p:"hǎo",e:"good",link:"好"},{g:"吃",p:"chī",e:"eat",link:"吃"}] },
+  { c:"好看", p:"hǎokàn", e:"good-looking / nice to watch", note:"好 (good) + 看 (look) — pleasant to the eye",
+    chars:[{g:"好",p:"hǎo",e:"good",link:"好"},{g:"看",p:"kàn",e:"look",link:"看"}] },
+  { c:"好喝", p:"hǎohē", e:"tastes good (drinks)", note:"好 (good) + 喝 (drink) — a drink worth having",
+    chars:[{g:"好",p:"hǎo",e:"good",link:"好"},{g:"喝",p:"hē",e:"drink",link:"喝"}] },
+  { c:"回家", p:"huíjiā", e:"go home / return home", note:"回 (return) + 家 (home) — the universal direction",
+    chars:[{g:"回",p:"huí",e:"return",link:"回"},{g:"家",p:"jiā",e:"home",link:"家"}] },
+  { c:"回来", p:"huílái", e:"come back / return", note:"回 (return) + 来 (come) — directional complement meaning 'come back here'",
+    chars:[{g:"回",p:"huí",e:"return",link:"回"},{g:"来",p:"lái",e:"come",link:"来"}] },
+  { c:"出来", p:"chūlái", e:"come out", note:"出 (exit) + 来 (come) — directional: moving outward toward the speaker",
+    chars:[{g:"出",p:"chū",e:"exit",link:"出租车"},{g:"来",p:"lái",e:"come",link:"来"}] },
+  { c:"进来", p:"jìnlái", e:"come in", note:"进 (enter) + 来 — moving inward toward the speaker",
+    chars:[{g:"进",p:"jìn",e:"enter"},{g:"来",p:"lái",e:"come",link:"来"}] },
+  { c:"上来", p:"shànglái", e:"come up", note:"上 (up) + 来 — movement upward toward the speaker",
+    chars:[{g:"上",p:"shàng",e:"up",link:"上"},{g:"来",p:"lái",e:"come",link:"来"}] },
+  { c:"下去", p:"xiàqù", e:"go down", note:"下 (down) + 去 — movement downward away from speaker",
+    chars:[{g:"下",p:"xià",e:"down",link:"下"},{g:"去",p:"qù",e:"go",link:"去"}] },
+  { c:"多少钱", p:"duōshao qián", e:"how much (money)?", note:"多少 (how much) + 钱 (money) — the most useful shopping phrase",
+    chars:[{g:"多",p:"duō",e:"many",link:"多"},{g:"少",p:"shǎo",e:"few",link:"少"},{g:"钱",p:"qián",e:"money",link:"钱"}] },
+  { c:"一起", p:"yīqǐ", e:"together", note:"一 (one) + 起 (rise/start) — all starting as one",
+    chars:[{g:"一",p:"yī",e:"one",link:"一"},{g:"起",p:"qǐ",e:"rise"}] },
+  { c:"一样", p:"yīyàng", e:"the same / alike", note:"一 (one) + 样 (appearance) — one and the same appearance",
+    chars:[{g:"一",p:"yī",e:"one",link:"一"},{g:"样",p:"yàng",e:"appearance"}] },
+  { c:"有名", p:"yǒumíng", e:"famous / well-known", note:"有 (have) + 名 (name) — to have a name (everyone knows)",
+    chars:[{g:"有",p:"yǒu",e:"have",link:"有"},{g:"名",p:"míng",e:"name",link:"名字"}] },
+  { c:"有钱", p:"yǒuqián", e:"wealthy / rich", note:"有 (have) + 钱 (money) — literally 'to have money'",
+    chars:[{g:"有",p:"yǒu",e:"have",link:"有"},{g:"钱",p:"qián",e:"money",link:"钱"}] },
+  { c:"开心", p:"kāixīn", e:"happy / joyful", note:"开 (open) + 心 (heart) — an open heart; freer and more spontaneous than 高兴",
+    chars:[{g:"开",p:"kāi",e:"open",link:"开"},{g:"心",p:"xīn",e:"heart"}] },
+  { c:"开门", p:"kāimén", e:"open the door", note:"开 (open) + 门 (door) — a common action compound",
+    chars:[{g:"开",p:"kāi",e:"open",link:"开"},{g:"门",p:"mén",e:"door"}] },
+  { c:"人们", p:"rénmen", e:"people (plural)", note:"人 (person) + 们 (plural suffix) — the collective 'people'",
+    chars:[{g:"人",p:"rén",e:"person",link:"人"},{g:"们",p:"men",e:"(plural suffix)"}] },
+  { c:"朋友们", p:"péngyoumen", e:"friends (plural)", note:"朋友 (friend) + 们 — addressing a group of friends",
+    chars:[{g:"朋",p:"péng",e:"friend"},{g:"友",p:"yǒu",e:"companion"},{g:"们",p:"men",e:"(plural)"}] },
+  { c:"中文", p:"Zhōngwén", e:"Chinese (language/writing)", note:"中 (China/middle) + 文 (language/writing) — more formal than 汉语 for written Chinese",
+    chars:[{g:"中",p:"zhōng",e:"middle/China",link:"中国"},{g:"文",p:"wén",e:"writing/culture"}] },
+  { c:"日文", p:"Rìwén", e:"Japanese (language)", note:"日 (Japan/sun) + 文 (language) — language of the Land of the Rising Sun",
+    chars:[{g:"日",p:"rì",e:"sun/Japan",link:"日"},{g:"文",p:"wén",e:"language"}] },
+  { c:"今年", p:"jīnnián", e:"this year", note:"今 (now/current) + 年 (year) — the current year",
+    chars:[{g:"今",p:"jīn",e:"now",link:"今天"},{g:"年",p:"nián",e:"year",link:"年"}] },
+  { c:"去年", p:"qùnián", e:"last year", note:"去 (past/go) + 年 (year) — the year that has 'gone'",
+    chars:[{g:"去",p:"qù",e:"go/past",link:"去"},{g:"年",p:"nián",e:"year",link:"年"}] },
+  { c:"明年", p:"míngnián", e:"next year", note:"明 (bright/next) + 年 (year) — the bright year ahead",
+    chars:[{g:"明",p:"míng",e:"bright/next",link:"明天"},{g:"年",p:"nián",e:"year",link:"年"}] },
+];
+
+// Expressions with full character-by-character breakdown
+const EXPRESSIONS = [
+  { c:"不客气", p:"bú kèqi", e:"You're welcome / Don't mention it",
+    note:"Literally 'don't be polite'. The humble response to 谢谢. You can also say 没事 (méishì) or 不用谢 (búyòng xiè).",
+    chars:[{g:"不",p:"bù",e:"not",role:"negation",link:"不"},{g:"客",p:"kè",e:"guest/visitor",role:"suggests formality or being a guest"},{g:"气",p:"qì",e:"manner/air/energy",role:"气 here means 'manner' — 'don't act like a formal guest'"}] },
+  { c:"没关系", p:"méi guānxi", e:"It doesn't matter / No worries",
+    note:"Often used to reassure someone after an apology. More casual than 没问题. 关系 means 'relationship/connection' — there's no connection (to any problem).",
+    chars:[{g:"没",p:"méi",e:"not have",role:"negation — there is none",link:"没有"},{g:"关",p:"guān",e:"relate/connect",role:"关系 together means 'relationship'"},{g:"系",p:"xì",e:"connect/tie",role:"completes 关系"}] },
+  { c:"没问题", p:"méi wèntí", e:"No problem",
+    note:"问题 means 'question/problem'. A confident, reassuring expression. Common in both formal and casual speech.",
+    chars:[{g:"没",p:"méi",e:"not have",role:"negation",link:"没有"},{g:"问",p:"wèn",e:"ask",role:"问题 = question/problem"},{g:"题",p:"tí",e:"topic/question",role:"completes 问题"}] },
+  { c:"对不起", p:"duìbuqǐ", e:"Sorry / I'm sorry",
+    note:"Literally 'unable to face you'. A sincere apology. The response is 没关系 (no worries) or 没事 (it's fine).",
+    chars:[{g:"对",p:"duì",e:"face/correct",role:"face someone / confront"},{g:"不",p:"bu",e:"not",role:"negation — unable to",link:"不"},{g:"起",p:"qǐ",e:"rise/face up to",role:"together: 'I cannot face you'"}] },
+  { c:"没事", p:"méishì", e:"It's fine / No worries / Nothing's up",
+    note:"Very versatile: response to an apology, or 'nothing's the matter'. More casual than 没关系.",
+    chars:[{g:"没",p:"méi",e:"not have",role:"negation",link:"没有"},{g:"事",p:"shì",e:"matter/thing/event",role:"'there is no matter/issue'"}] },
+  { c:"没什么", p:"méi shénme", e:"It's nothing / Never mind",
+    note:"Casual and warm dismissal. Often used to deflect thanks or apologies graciously.",
+    chars:[{g:"没",p:"méi",e:"not have",role:"negation",link:"没有"},{g:"什",p:"shén",e:"(part of 什么)",role:"combines with 么",link:"什么"},{g:"么",p:"me",e:"(question particle)",role:"什么 = what — 'it's nothing'",link:"什么"}] },
+  { c:"你好吗", p:"nǐ hǎo ma", e:"How are you?",
+    note:"A direct greeting asking about wellbeing. The particle 吗 turns a statement into a yes/no question.",
+    chars:[{g:"你",p:"nǐ",e:"you",role:"subject",link:"你"},{g:"好",p:"hǎo",e:"good/well",role:"adjective — 'are you well?'",link:"好"},{g:"吗",p:"ma",e:"(yes/no question particle)",role:"turns statement into question"}] },
+  { c:"你好", p:"nǐ hǎo", e:"Hello (lit. 'you good')",
+    note:"The classic greeting. Use 你们好 for a group, 您好 for formal/respectful situations.",
+    chars:[{g:"你",p:"nǐ",e:"you",role:"subject",link:"你"},{g:"好",p:"hǎo",e:"good",role:"'you [are] good' — a statement as greeting",link:"好"}] },
+  { c:"再见", p:"zàijiàn", e:"Goodbye (lit. 'see you again')",
+    note:"再 means 'again' and 见 means 'see/meet'. Together: 'until we meet again'. Very natural for all farewells.",
+    chars:[{g:"再",p:"zài",e:"again",role:"indicates future repetition",link:"再见"},{g:"见",p:"jiàn",e:"see/meet",role:"'see you' — 见 also appears in 看见",link:"看见"}] },
+  { c:"谢谢", p:"xièxie", e:"Thank you",
+    note:"The character 谢 is repeated for emphasis and natural flow. 谢谢你 adds 'you' for a warmer feel.",
+    chars:[{g:"谢",p:"xiè",e:"thank/decline",role:"repeated for warmth and softness",link:"谢谢"},{g:"谢",p:"xie",e:"thank (softened)",role:"second syllable is neutral tone in speech",link:"谢谢"}] },
+  { c:"不用谢", p:"bùyòng xiè", e:"No need to thank me",
+    note:"A gracious response to 谢谢. 用 means 'need/use', so literally 'no need to thank'.",
+    chars:[{g:"不",p:"bù",e:"not",role:"negation",link:"不"},{g:"用",p:"yòng",e:"need/use",role:"'no need'"},{g:"谢",p:"xiè",e:"thank",role:"'to thank'",link:"谢谢"}] },
+  { c:"请问", p:"qǐngwèn", e:"Excuse me / May I ask…",
+    note:"请 (please) + 问 (ask) — a polite opener before a question. Essential for asking strangers on the street.",
+    chars:[{g:"请",p:"qǐng",e:"please/invite",role:"polite marker",link:"请"},{g:"问",p:"wèn",e:"ask",role:"to ask a question"}] },
+  { c:"我不知道", p:"wǒ bù zhīdào", e:"I don't know",
+    note:"知道 (know/understand) is a key verb pair. 不知道 is among the most-used phrases daily.",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject",link:"我"},{g:"不",p:"bù",e:"not",role:"negation",link:"不"},{g:"知",p:"zhī",e:"know",role:"知道 = to know"},{g:"道",p:"dào",e:"way/path",role:"completes 知道 — 'the way of knowing'"}] },
+  { c:"我知道了", p:"wǒ zhīdào le", e:"I see / I understand / Got it",
+    note:"The particle 了 marks a change of state — 'I now know'. One of the most satisfying phrases to master.",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject",link:"我"},{g:"知",p:"zhī",e:"know",role:"知道 = to know"},{g:"道",p:"dào",e:"way",role:"completes 知道"},{g:"了",p:"le",e:"(change-of-state particle)",role:"'I have come to know'",link:"了"}] },
+  { c:"好的", p:"hǎo de", e:"Okay / Sure / Alright",
+    note:"的 softens 好 into a warm, affirmative reply. More casual than 好. Very common in daily conversation.",
+    chars:[{g:"好",p:"hǎo",e:"good/okay",role:"core affirmation",link:"好"},{g:"的",p:"de",e:"(softening particle)",role:"makes response feel lighter and agreeable",link:"的"}] },
+  { c:"真的吗", p:"zhēn de ma", e:"Really? / Is that true?",
+    note:"真 means 'real/true'. 真的 = 'really'. Adding 吗 makes it a question of surprise or verification.",
+    chars:[{g:"真",p:"zhēn",e:"true/real",role:"'real' — adds authenticity"},{g:"的",p:"de",e:"(particle)",role:"nominalizes 真 into 'really'",link:"的"},{g:"吗",p:"ma",e:"(question particle)",role:"turns into surprised question"}] },
+  { c:"太好了", p:"tài hǎo le", e:"Excellent! / That's great!",
+    note:"太…了 is the 'so … !' pattern. 太好了 = 'so good!'. Swap 好 with other adjectives: 太漂亮了, 太多了.",
+    chars:[{g:"太",p:"tài",e:"too/so/extremely",role:"intensifier: 'so/too'",link:"太"},{g:"好",p:"hǎo",e:"good",role:"adjective",link:"好"},{g:"了",p:"le",e:"(exclamation particle)",role:"completes the 太…了 pattern",link:"了"}] },
+  { c:"太多了", p:"tài duō le", e:"Too much / Way too many",
+    note:"Same 太…了 pattern with 多 (many/much). Useful for food portions, prices, or any excess.",
+    chars:[{g:"太",p:"tài",e:"too/so",role:"intensifier",link:"太"},{g:"多",p:"duō",e:"many/much",role:"adjective",link:"多"},{g:"了",p:"le",e:"(exclamation particle)",role:"completes 太…了",link:"了"}] },
+  { c:"怎么了", p:"zěnme le", e:"What's wrong? / What happened?",
+    note:"A concerned question. 怎么 (how/why) + 了 (change marker) = 'how did things change?' Used when something seems off.",
+    chars:[{g:"怎",p:"zěn",e:"how/why (part 1)",role:"part of 怎么",link:"怎么"},{g:"么",p:"me",e:"(part 2)",role:"怎么 = how/why",link:"怎么"},{g:"了",p:"le",e:"(change particle)",role:"signals something has changed",link:"了"}] },
+  { c:"有没有", p:"yǒu méiyǒu", e:"Do you have… / Is there…?",
+    note:"The affirmative-negative question pattern. 有 (have) + 没有 (not have). Very natural alternative to 有…吗.",
+    chars:[{g:"有",p:"yǒu",e:"have",role:"positive form",link:"有"},{g:"没",p:"méi",e:"not have",role:"negative form",link:"没有"},{g:"有",p:"yǒu",e:"have",role:"repeated — A-not-A question pattern",link:"有"}] },
+  { c:"是不是", p:"shì bu shì", e:"Is it or isn't it? / Right?",
+    note:"Another A-not-A question. Softer than 是吗. Often used to seek confirmation: 你是不是学生？",
+    chars:[{g:"是",p:"shì",e:"is/be",role:"positive form",link:"是"},{g:"不",p:"bu",e:"not",role:"negation (neutral tone)",link:"不"},{g:"是",p:"shì",e:"is/be",role:"repeated — A-not-A pattern",link:"是"}] },
+  { c:"一点儿也不", p:"yīdiǎnr yě bù", e:"Not at all / Not even a little",
+    note:"一点儿 (a little bit) + 也 (also/even) + 不 (not) = the emphatic 'not at all' construction.",
+    chars:[{g:"一",p:"yī",e:"one",role:"part of 一点儿",link:"一"},{g:"点",p:"diǎn",e:"point/dot",role:"一点儿 = a little bit",link:"点"},{g:"儿",p:"r",e:"(erhua suffix)",role:"北京 dialect flavor"},{g:"也",p:"yě",e:"also/even",role:"'not even'"},{g:"不",p:"bù",e:"not",role:"final negation",link:"不"}] },
+  { c:"什么时候", p:"shénme shíhou", e:"When? / What time?",
+    note:"什么 (what) + 时候 (time/moment) = 'what time/moment'. Essential for making plans.",
+    chars:[{g:"什",p:"shén",e:"(part of 什么)",role:"",link:"什么"},{g:"么",p:"me",e:"what",role:"什么 = what",link:"什么"},{g:"时",p:"shí",e:"time",role:"时候 = time/moment",link:"时候"},{g:"候",p:"hou",e:"moment/wait",role:"completes 时候",link:"时候"}] },
+  { c:"在哪儿", p:"zài nǎr", e:"Where is it? / Where are you?",
+    note:"在 (be at) + 哪儿 (where) — the standard way to ask location. 在哪儿 is more colloquial; 在哪里 is slightly more formal.",
+    chars:[{g:"在",p:"zài",e:"be at/located",role:"location verb",link:"在"},{g:"哪",p:"nǎ",e:"which",role:"part of 哪儿",link:"哪儿"},{g:"儿",p:"r",e:"(erhua)",role:"哪儿 = where (colloquial Beijing)"}] },
+  { c:"多少钱", p:"duōshao qián", e:"How much does it cost?",
+    note:"The essential shopping phrase. 多少 (how many/much) + 钱 (money). Works for any price inquiry.",
+    chars:[{g:"多",p:"duō",e:"many",role:"part of 多少",link:"多"},{g:"少",p:"shǎo",e:"few",role:"多少 = how much/many",link:"少"},{g:"钱",p:"qián",e:"money",role:"'how much money?'",link:"钱"}] },
+  { c:"我不会说中文", p:"wǒ bù huì shuō Zhōngwén", e:"I can't speak Chinese",
+    note:"会 (know how to) + 说 (speak) — use 会 for learned skills. Ironically useful to know!",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject",link:"我"},{g:"不",p:"bù",e:"not",role:"negation",link:"不"},{g:"会",p:"huì",e:"know how to",role:"ability modal",link:"会"},{g:"说",p:"shuō",e:"speak",role:"verb",link:"说话"},{g:"中",p:"zhōng",e:"China/middle",role:"part of 中文",link:"中国"},{g:"文",p:"wén",e:"language",role:"中文 = Chinese language"}] },
+  { c:"慢一点儿", p:"màn yīdiǎnr", e:"Slower please / A bit slower",
+    note:"慢 (slow) + 一点儿 (a little bit) — one of the most important phrases for language learners!",
+    chars:[{g:"慢",p:"màn",e:"slow",role:"adjective/adverb"},{g:"一",p:"yī",e:"one",role:"part of 一点儿",link:"一"},{g:"点",p:"diǎn",e:"point",role:"一点儿 = a little bit",link:"点"},{g:"儿",p:"r",e:"(erhua)",role:"softens the request"}] },
+  { c:"我听不懂", p:"wǒ tīng bu dǒng", e:"I don't understand (what I hear)",
+    note:"听 (listen) + 不 + 懂 (understand) — a potential complement meaning 'unable to understand through listening'. 看不懂 = can't understand by reading.",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject",link:"我"},{g:"听",p:"tīng",e:"listen",role:"verb",link:"听"},{g:"不",p:"bu",e:"not",role:"negation in potential complement",link:"不"},{g:"懂",p:"dǒng",e:"understand",role:"result — 'comprehend'"}] },
+  { c:"能说慢一点吗", p:"néng shuō màn yīdiǎn ma", e:"Can you speak a bit slower?",
+    note:"A polite request combining 能 (can), 说 (speak), and 慢一点 (a bit slower). Perfect for real conversations.",
+    chars:[{g:"能",p:"néng",e:"can/able",role:"ability modal",link:"能"},{g:"说",p:"shuō",e:"speak",role:"verb",link:"说话"},{g:"慢",p:"màn",e:"slow",role:"adverb"},{g:"一",p:"yī",e:"one",role:"part of 一点",link:"一"},{g:"点",p:"diǎn",e:"point/bit",role:"一点 = a little",link:"点"},{g:"吗",p:"ma",e:"(question particle)",role:"makes it politely questioning"}] },
+  { c:"吃了吗", p:"chī le ma", e:"Have you eaten? (casual greeting)",
+    note:"A traditional Chinese greeting, especially among older generations. Shows care — food is central to Chinese culture. Answer: 吃了！(Yes!) or 还没！(Not yet!)",
+    chars:[{g:"吃",p:"chī",e:"eat",role:"verb",link:"吃"},{g:"了",p:"le",e:"(completion particle)",role:"marks completed action",link:"了"},{g:"吗",p:"ma",e:"(question particle)",role:"yes/no question"}] },
+  { c:"我爱你", p:"wǒ ài nǐ", e:"I love you",
+    note:"Simple and direct. 爱 is a strong word in Chinese — often shown through actions rather than said aloud. 喜欢你 (I like you) is more commonly used in early relationships.",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject",link:"我"},{g:"爱",p:"ài",e:"love",role:"verb",link:"爱"},{g:"你",p:"nǐ",e:"you",role:"object",link:"你"}] },
+  { c:"一路平安", p:"yīlù píng'ān", e:"Have a safe journey",
+    note:"一路 (the whole way) + 平安 (peace and safety). A warm send-off for travelers. Often written in farewell cards.",
+    chars:[{g:"一",p:"yī",e:"one",role:"一路 = the whole way",link:"一"},{g:"路",p:"lù",e:"road/journey",role:"the road ahead"},{g:"平",p:"píng",e:"flat/peaceful",role:"平安 = peace and safety"},{g:"安",p:"ān",e:"safe/settled",role:"completes 平安"}] },
+];
+
+// ─────────────────────────────────────────────
+// CACHE — File System Access API with localStorage fallback
+// ─────────────────────────────────────────────
+let cacheData = {};     // { [charKey]: aiInfo }
+let fileHandle = null;  // FileSystemFileHandle
+
+async function initCache() {
+  // Try to restore saved file handle from IndexedDB
+  try {
+    fileHandle = await idbGet('cacheFileHandle');
+    if (fileHandle) {
+      const perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        await loadCacheFromFile();
+        markFileBtnLinked(fileHandle.name);
+        return;
+      } else {
+        fileHandle = null;
+      }
+    }
+  } catch(e) { fileHandle = null; }
+
+  // Fallback: load from localStorage
+  try {
+    const raw = localStorage.getItem('hsk1_cache_v2');
+    if (raw) cacheData = JSON.parse(raw);
+  } catch(e) {}
+}
+
+async function loadCacheFromFile() {
+  try {
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    // Handle both generator format {cache,errors,count} and flat format
+    cacheData = parsed.cache || parsed;
+  } catch(e) { cacheData = {}; }
+}
+
+async function saveCache() {
+  const json = JSON.stringify(cacheData, null, 2);
+  if (fileHandle) {
+    try {
+      const perm = await fileHandle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        const writable = await fileHandle.createWritable();
+        await writable.write(json);
+        await writable.close();
+        return;
+      }
+    } catch(e) {}
+  }
+  // Fallback to localStorage
+  try { localStorage.setItem('hsk1_cache_v2', json); } catch(e) {}
+}
+
+async function handleCacheFile() {
+  if (!window.showOpenFilePicker && !window.showSaveFilePicker) {
+    toast('File System API not supported in this browser. Using localStorage.');
+    return;
+  }
+  try {
+    // Try to open existing cache file
+    const [fh] = await window.showOpenFilePicker({
+      types: [{ description: 'Cache JSON', accept: { 'application/json': ['.json'] } }],
+      multiple: false
+    });
+    fileHandle = fh;
+    await idbSet('cacheFileHandle', fileHandle);
+    await loadCacheFromFile();
+    markFileBtnLinked(fileHandle.name);
+    renderGrid();
+    updateCacheStats();
+    toast(`Linked: ${fileHandle.name} (${Object.keys(cacheData).length} entries loaded)`);
+  } catch(e) {
+    if (e.name === 'AbortError') return;
+    // Maybe they want to create a new file
+    try {
+      fileHandle = await window.showSaveFilePicker({
+        suggestedName: 'hsk1-cache.json',
+        types: [{ description: 'Cache JSON', accept: { 'application/json': ['.json'] } }]
+      });
+      await idbSet('cacheFileHandle', fileHandle);
+      await saveCache();
+      markFileBtnLinked(fileHandle.name);
+      toast(`Created: ${fileHandle.name}`);
+    } catch(e2) { if (e2.name !== 'AbortError') toast('Could not link file.'); }
+  }
+}
+
+function markFileBtnLinked(name) {
+  const btn = document.getElementById('cacheFileBtn');
+  btn.textContent = `💾 ${name}`;
+  btn.classList.add('linked');
+  btn.title = `Cache linked to ${name}. Click to re-link.`;
+}
+
+// ─────────────────────────────────────────────
+// IndexedDB helpers (for persisting file handle)
+// ─────────────────────────────────────────────
+function idbGet(key) {
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open('hsk1app', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('store');
+      req.onsuccess = e => {
+        const db = e.target.result;
+        const tx = db.transaction('store', 'readonly');
+        const r = tx.objectStore('store').get(key);
+        r.onsuccess = () => resolve(r.result ?? null);
+        r.onerror = () => resolve(null);
+      };
+      req.onerror = () => resolve(null);
+    } catch(e) { resolve(null); }
+  });
+}
+
+function idbSet(key, value) {
+  return new Promise((resolve) => {
+    try {
+      const req = indexedDB.open('hsk1app', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('store');
+      req.onsuccess = e => {
+        const db = e.target.result;
+        const tx = db.transaction('store', 'readwrite');
+        tx.objectStore('store').put(value, key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      };
+      req.onerror = () => resolve();
+    } catch(e) { resolve(); }
+  });
+}
+
+// ─────────────────────────────────────────────
+// CACHE ACCESSORS
+// ─────────────────────────────────────────────
+function cacheKey(word) { return 'c:' + word.c; }
+function loadFromCache(word) { return cacheData[cacheKey(word)] || null; }
+function saveToCache(word, info) {
+  cacheData[cacheKey(word)] = info;
+  saveCache();
+}
+function cachedCount() { return Object.keys(cacheData).filter(k => k.startsWith('c:')).length; }
+function updateCacheStats() {
+  const el = document.getElementById('cacheStats');
+  if (el) el.textContent = `${cachedCount()} / ${HSK1.length} cached`;
+}
+
+// ─────────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// CHARACTERS
+// ─────────────────────────────────────────────
+let filtered = [...HSK1];
+let activeIdx = null;
+let activeWord = null;
+let activeExprIdx = null;
+
+function filterChars() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const cat = document.getElementById('catFilter').value;
+  const sort = document.getElementById('sortSelect').value;
+  filtered = HSK1.filter(w => {
+    const mq = !q || w.c.includes(q) || w.p.toLowerCase().includes(q) || w.e.toLowerCase().includes(q);
+    const mc = !cat || w.cat === cat;
+    return mq && mc;
+  });
+  if (sort === 'pinyin') filtered.sort((a,b) => a.p.localeCompare(b.p, 'zh'));
+  else if (sort === 'strokes') filtered.sort((a,b) => a.s - b.s);
+  document.getElementById('charCount').textContent = `${filtered.length} character${filtered.length!==1?'s':''}`;
+  activeIdx = null;
+  renderGrid();
+}
+
+function renderGrid() {
+  const grid = document.getElementById('charGrid');
+  grid.innerHTML = filtered.map((w, i) => {
+    const isActive = i === activeIdx;
+    const isCached = !!loadFromCache(w);
+    return `<button class="char-btn${isActive?' active':''}${isCached?' cached':''}" onclick="selectChar(${i})" title="${w.c} · ${w.p} · ${w.e}">
+      <span class="cb-char">${w.c[0]}</span>
+      <div class="cb-pin">${w.p.split(' ')[0]}</div>
+      <div class="cb-en">${w.e.split('/')[0].trim()}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectChar(idx, switchToTab) {
+  activeIdx = idx;
+  activeExprIdx = null;
+  activeWord = filtered[idx];
+  if (switchToTab) {
+    document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.stab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.stab').classList.add('active');
+    document.getElementById('tab-chars').classList.add('active');
+  }
+  renderGrid();
+  renderExprList();
+  showCharDetail(activeWord, idx);
+}
+
+// Navigate to a character by its glyph (used from compound/expression links)
+function goToChar(glyph) {
+  const idx = HSK1.findIndex(w => w.c[0] === glyph || w.c === glyph);
+  if (idx === -1) { toast(`${glyph} is not in HSK 1 list`); return; }
+  // Reset filter so character is visible
+  document.getElementById('searchInput').value = '';
+  document.getElementById('catFilter').value = '';
+  document.getElementById('sortSelect').value = 'hsk';
+  filtered = [...HSK1];
+  document.getElementById('charCount').textContent = `${filtered.length} characters`;
+  const filtIdx = filtered.findIndex(w => w.c === HSK1[idx].c);
+  selectChar(filtIdx, true);
+  // Scroll char into view
+  setTimeout(() => {
+    const btns = document.querySelectorAll('.char-btn');
+    if (btns[filtIdx]) btns[filtIdx].scrollIntoView({ block: 'nearest' });
+  }, 50);
+}
+
+// ─────────────────────────────────────────────
+// COMPOUNDS rendering helper
+// ─────────────────────────────────────────────
+function renderCompoundChars(chars) {
+  return chars.map(ch => {
+    if (ch.link) {
+      const target = HSK1.find(w => w.c === ch.link || w.c[0] === ch.link);
+      if (target) return `<button class="compound-char-link" onclick="goToChar('${ch.g}')" title="Go to ${ch.g}">${ch.g}</button>`;
+    }
+    return `<span class="compound-char-nolink" title="${ch.p}: ${ch.e}">${ch.g}</span>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// CHARACTER DETAIL
+// ─────────────────────────────────────────────
+function showCharDetail(word, idx) {
+  const panel = document.getElementById('detailPanel');
+  const cached = loadFromCache(word);
+
+  // Find relevant compounds
+  const relatedCompounds = COMPOUNDS.filter(cp =>
+    cp.chars.some(ch => ch.g === word.c[0] || ch.link === word.c)
+  );
+
+  panel.innerHTML = `
+    <div class="detail-content">
+      <div class="detail-hero">
+        <div class="hero-char">${word.c[0]}</div>
+        <div class="hero-meta">
+          <div class="hero-pinyin">${word.p}</div>
+          <div class="hero-tags">
+            <span class="tag tag-cat">${word.cat}</span>
+            <span class="tag tag-stroke">${word.s} strokes</span>
+          </div>
+          <div class="hero-meaning">${word.e.split('/')[0].trim()}</div>
+          ${word.e.includes('/') ? `<div class="hero-meaning-sub">also: ${word.e.split('/').slice(1).map(s=>s.trim()).join(' · ')}</div>` : ''}
+        </div>
+      </div>
+
+      ${relatedCompounds.length ? `
+        <div class="section">
+          <div class="section-header"><span class="section-label">Compound words</span><div class="section-line"></div></div>
+          <div class="compounds-grid">
+            ${relatedCompounds.map(cp => `
+              <div class="compound-row">
+                <div class="compound-top">
+                  <div class="compound-chars">${renderCompoundChars(cp.chars)}</div>
+                  <span class="compound-pin">${cp.p}</span>
+                  <span class="compound-meaning">${cp.e}</span>
+                </div>
+                ${cp.note ? `<div class="compound-note">${cp.note}</div>` : ''}
+              </div>`).join('')}
+          </div>
+        </div>` : ''}
+
+      <div id="aiContent">
+        ${cached
+          ? renderAI(cached, true)
+          : `<div class="loading-wrap"><div class="loading-spinner"></div><p>Analyzing character…</p></div>`}
+      </div>
+    </div>
+  `;
+  panel.scrollTop = 0;
+  updateCacheStats();
+  if (!cached) loadAI(word, idx);
+}
+
+function renderAI(info, fromCache) {
+  return `
+    ${fromCache ? `<div class="cache-notice">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Loaded from cache
+    </div>` : ''}
+    <div class="section">
+      <div class="section-header"><span class="section-label">Radical breakdown</span><div class="section-line"></div></div>
+      <div class="radicals-grid">
+        ${(info.radicals||[]).map(r => `
+          <div class="radical-row">
+            <div class="radical-char">${r.char}</div>
+            <div class="radical-info">
+              <div class="radical-top">
+                <span class="radical-pin">${r.pinyin}</span>
+                <span class="radical-meaning">${r.meaning}</span>
+              </div>
+              <div class="radical-role">${r.role}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-label">Etymology &amp; structure</span><div class="section-line"></div></div>
+      <p class="prose">${info.etymology||''}</p>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-label">Memory tip</span><div class="section-line"></div></div>
+      <div class="memory-box">${info.memory_tip||''}</div>
+    </div>
+    <div class="section">
+      <div class="section-header"><span class="section-label">Example sentences</span><div class="section-line"></div></div>
+      <div class="examples">
+        ${(info.examples||[]).map(ex => `
+          <div class="example">
+            <div class="ex-cn">${ex.cn}</div>
+            <div class="ex-pin">${ex.pinyin}</div>
+            <div class="ex-en">${ex.en}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+async function loadAI(word, idx) {
+  const prompt = `You are a Mandarin Chinese teacher and linguist. Analyze the HSK 1 character/word: ${word.c} (pinyin: ${word.p}, meaning: ${word.e}).
+
+Respond ONLY with a valid JSON object (no markdown, no backticks, no extra text) with exactly these keys:
+{
+  "radicals": [{"char": "radical_character", "pinyin": "pīnyīn", "meaning": "meaning in English", "role": "brief description of its role or contribution to this character"}],
+  "etymology": "2-3 sentences on pictographic origin, semantic logic, or historical evolution. Be specific and interesting.",
+  "memory_tip": "A vivid 2-3 sentence mnemonic or visual story to help remember this character. Make it fun and concrete.",
+  "examples": [
+    {"cn": "sentence using ${word.c[0]}", "pinyin": "full pinyin with tones", "en": "English translation"},
+    {"cn": "sentence using ${word.c[0]}", "pinyin": "full pinyin with tones", "en": "English translation"},
+    {"cn": "sentence using ${word.c[0]}", "pinyin": "full pinyin with tones", "en": "English translation"}
+  ]
+}
+
+Rules: analyze primary character ${word.c[0]}. Example sentences use mostly HSK 1 vocabulary. Return ONLY the JSON.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const raw = data.content?.filter(b => b.type === 'text').map(b => b.text).join('') || '';
+    let info;
+    try { info = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
+    catch(e) { throw new Error('Parse error'); }
+    saveToCache(word, info);
+    updateCacheStats();
+    const container = document.getElementById('aiContent');
+    if (!container || activeIdx !== idx) return;
+    container.innerHTML = renderAI(info, false);
+  } catch(err) {
+    const container = document.getElementById('aiContent');
+    if (container && activeIdx === idx) {
+      container.innerHTML = `<div class="error-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Could not load analysis. Please try again.
+      </div>`;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// EXPRESSIONS
+// ─────────────────────────────────────────────
+let filteredExprs = [...EXPRESSIONS];
+
+function filterExprs() {
+  const q = document.getElementById('exprSearch').value.toLowerCase();
+  filteredExprs = EXPRESSIONS.filter(ex =>
+    !q || ex.c.includes(q) || ex.p.toLowerCase().includes(q) || ex.e.toLowerCase().includes(q)
+  );
+  document.getElementById('exprCount').textContent = `${filteredExprs.length} expression${filteredExprs.length!==1?'s':''}`;
+  renderExprList();
+}
+
+function renderExprList() {
+  const list = document.getElementById('exprList');
+  list.innerHTML = filteredExprs.map((ex, i) => {
+    const isActive = i === activeExprIdx;
+    return `<button class="expr-btn${isActive?' active':''}" onclick="selectExpr(${i})">
+      <div class="eb-cn">${ex.c}</div>
+      <div class="eb-pin">${ex.p}</div>
+      <div class="eb-en">${ex.e}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectExpr(idx) {
+  activeExprIdx = idx;
+  activeIdx = null;
+  renderExprList();
+  renderGrid();
+  showExprDetail(filteredExprs[idx]);
+}
+
+function showExprDetail(expr) {
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = `
+    <div class="detail-content">
+      <div class="detail-hero">
+        <div class="hero-char" style="font-size:48px; padding-top:12px;">${expr.c}</div>
+        <div class="hero-meta">
+          <div class="hero-pinyin">${expr.p}</div>
+          <div class="hero-tags"><span class="tag tag-expr">expression</span></div>
+          <div class="hero-meaning">${expr.e}</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-header"><span class="section-label">Character breakdown</span><div class="section-line"></div></div>
+        <div class="expr-detail-box">
+          <div class="expr-hero-cn">
+            ${expr.chars.map(ch => ch.link
+              ? `<button class="expr-hero-char-link" onclick="goToChar('${ch.g}')" title="View ${ch.g}">${ch.g}</button>`
+              : `<span title="${ch.p}: ${ch.e}">${ch.g}</span>`
+            ).join('')}
+          </div>
+          <div class="expr-hero-pin">${expr.p}</div>
+          <div class="expr-hero-en">${expr.e}</div>
+          <div class="expr-breakdown">
+            ${expr.chars.map(ch => `
+              <div class="expr-char-row">
+                <div class="expr-char-glyph">${ch.g}</div>
+                <div class="expr-char-info">
+                  <div class="expr-char-top">
+                    <span class="expr-char-pin">${ch.p}</span>
+                    <span class="expr-char-meaning">${ch.e}</span>
+                  </div>
+                  ${ch.role ? `<div class="expr-char-role">${ch.role}</div>` : ''}
+                </div>
+                ${ch.link ? `<button class="expr-link-btn" onclick="goToChar('${ch.g}')">Study ${ch.g} →</button>` : ''}
+              </div>`).join('')}
+          </div>
+          ${expr.note ? `<div class="expr-note">${expr.note}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  panel.scrollTop = 0;
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+(async () => {
+  await initCache();
+  renderGrid();
+  renderExprList();
+  updateCacheStats();
+})();
+</script>
+</body>
+</html>
