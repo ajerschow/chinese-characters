@@ -687,6 +687,13 @@ let cacheData = {};     // { [charKey]: aiInfo }
 let fileHandle = null;  // FileSystemFileHandle
 
 async function initCache() {
+  // Standalone build: cache embedded at build time
+  if (window.__EMBEDDED_CACHE__) {
+    cacheData = window.__EMBEDDED_CACHE__;
+    markFileBtnAutoLoaded();
+    return;
+  }
+
   // Try to restore saved file handle from IndexedDB
   try {
     fileHandle = await idbGet('cacheFileHandle');
@@ -701,6 +708,17 @@ async function initCache() {
       }
     }
   } catch(e) { fileHandle = null; }
+
+  // Auto-load from served cache file (works when running via dev server or same origin)
+  try {
+    const res = await fetch('./hsk1-cache.json');
+    if (res.ok) {
+      const parsed = await res.json();
+      cacheData = parsed.cache || parsed;
+      markFileBtnAutoLoaded();
+      return;
+    }
+  } catch(e) {}
 
   // Fallback: load from localStorage
   try {
@@ -775,6 +793,13 @@ function markFileBtnLinked(name) {
   btn.textContent = `💾 ${name}`;
   btn.classList.add('linked');
   btn.title = `Cache linked to ${name}. Click to re-link.`;
+}
+
+function markFileBtnAutoLoaded() {
+  const btn = document.getElementById('cacheFileBtn');
+  btn.textContent = `✓ Cache loaded`;
+  btn.classList.add('linked');
+  btn.title = `Cache auto-loaded from hsk1-cache.json. Click to link file for write-back.`;
 }
 
 // ─────────────────────────────────────────────
