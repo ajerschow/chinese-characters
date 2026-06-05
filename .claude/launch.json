@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "chinese-characters",
+      "runtimeExecutable": "/opt/homebrew/bin/npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/alexej/Documents/PROG/chinese_characters",
+      "port": 5174
+    }
+  ]
+}
