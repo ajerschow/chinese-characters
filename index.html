@@ -74,6 +74,11 @@
   .logo-cn { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 700; color: var(--ink); letter-spacing: 0.05em; }
   .logo-sep { width: 1px; height: 18px; background: var(--border2); flex-shrink: 0; }
   .logo-en { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); }
+  .collection-select {
+    margin-left: 16px; font-size: 12px; font-family: 'Noto Sans SC', sans-serif;
+    padding: 5px 9px; border-radius: 7px; border: 1px solid var(--border2);
+    background: var(--bg2); color: var(--ink); outline: none; cursor: pointer;
+  }
   .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
   .hbadge {
     font-size: 11px; padding: 2px 9px; border-radius: 99px;
@@ -291,8 +296,10 @@
   <div class="logo">
     <span class="logo-cn">汉字学习</span>
     <div class="logo-sep"></div>
-    <span class="logo-en">HSK 1 Study</span>
+    <span class="logo-en" id="collectionSubtitle">HSK 1 Study</span>
   </div>
+  <select class="collection-select" id="collectionSelect" onchange="switchCollection(this.value)" title="Switch collection">
+  </select>
   <div class="header-right">
     <span class="hbadge green" id="cacheStats">0 / 150 cached</span>
     <button class="cache-btn" id="cacheFileBtn" onclick="handleCacheFile()" title="Link a local cache.json file for persistent storage across sessions">
@@ -526,7 +533,7 @@ const HSK1 = [
 ];
 
 // Compound words: chars array links to HSK1 characters. null = not in HSK1
-const COMPOUNDS = [
+const HSK1_COMPOUNDS = [
   { c:"大学", p:"dàxué", e:"university", note:"大 (big) + 学 (study/school) — the 'great place of learning'",
     chars:[{g:"大",p:"dà",e:"big"},{g:"学",p:"xué",e:"study",link:"学校"}] },
   { c:"小学", p:"xiǎoxué", e:"primary school", note:"小 (small) + 学 — school for the little ones",
@@ -582,7 +589,7 @@ const COMPOUNDS = [
 ];
 
 // Expressions with full character-by-character breakdown
-const EXPRESSIONS = [
+const HSK1_EXPRESSIONS = [
   { c:"不客气", p:"bú kèqi", e:"You're welcome / Don't mention it",
     note:"Literally 'don't be polite'. The humble response to 谢谢. You can also say 没事 (méishì) or 不用谢 (búyòng xiè).",
     chars:[{g:"不",p:"bù",e:"not",role:"negation",link:"不"},{g:"客",p:"kè",e:"guest/visitor",role:"suggests formality or being a guest"},{g:"气",p:"qì",e:"manner/air/energy",role:"气 here means 'manner' — 'don't act like a formal guest'"}] },
@@ -680,6 +687,123 @@ const EXPRESSIONS = [
     note:"一路 (the whole way) + 平安 (peace and safety). A warm send-off for travelers. Often written in farewell cards.",
     chars:[{g:"一",p:"yī",e:"one",role:"一路 = the whole way",link:"一"},{g:"路",p:"lù",e:"road/journey",role:"the road ahead"},{g:"平",p:"píng",e:"flat/peaceful",role:"平安 = peace and safety"},{g:"安",p:"ān",e:"safe/settled",role:"completes 平安"}] },
 ];
+
+// ─────────────────────────────────────────────
+// CLASSROOM LANGUAGE collection — phrases for managing the
+// logistics of a Chinese class (instructions, requests, etc.)
+// ─────────────────────────────────────────────
+const CLASSROOM_CHARS = [
+  {c:"上课",p:"shàngkè",e:"start class / have class",s:12,cat:"verb"},
+  {c:"下课",p:"xiàkè",e:"end class / class is over",s:12,cat:"verb"},
+  {c:"请",p:"qǐng",e:"please",s:10,cat:"verb"},
+  {c:"跟",p:"gēn",e:"follow / with",s:13,cat:"verb"},
+  {c:"说",p:"shuō",e:"say / speak",s:9,cat:"verb"},
+  {c:"读",p:"dú",e:"read aloud",s:10,cat:"verb"},
+  {c:"听",p:"tīng",e:"listen",s:7,cat:"verb"},
+  {c:"写",p:"xiě",e:"write",s:5,cat:"verb"},
+  {c:"懂",p:"dǒng",e:"understand",s:15,cat:"verb"},
+  {c:"问题",p:"wèntí",e:"question / problem",s:21,cat:"noun"},
+  {c:"举手",p:"jǔshǒu",e:"raise your hand",s:13,cat:"verb"},
+  {c:"安静",p:"ānjìng",e:"quiet",s:20,cat:"adj"},
+  {c:"大声",p:"dàshēng",e:"loudly",s:10,cat:"adv"},
+  {c:"小声",p:"xiǎoshēng",e:"softly / quietly",s:10,cat:"adv"},
+  {c:"慢",p:"màn",e:"slow",s:14,cat:"adj"},
+  {c:"快",p:"kuài",e:"fast / quick",s:7,cat:"adj"},
+  {c:"翻译",p:"fānyì",e:"translate",s:25,cat:"verb"},
+  {c:"课本",p:"kèběn",e:"textbook",s:14,cat:"noun"},
+  {c:"练习",p:"liànxí",e:"exercise / practice",s:11,cat:"noun"},
+  {c:"作业",p:"zuòyè",e:"homework",s:12,cat:"noun"},
+  {c:"黑板",p:"hēibǎn",e:"blackboard",s:20,cat:"noun"},
+  {c:"打开",p:"dǎkāi",e:"open (a book/door)",s:9,cat:"verb"},
+  {c:"关上",p:"guānshàng",e:"close",s:9,cat:"verb"},
+  {c:"一遍",p:"yībiàn",e:"once / one time through",s:13,cat:"measure"},
+  {c:"再",p:"zài",e:"again",s:6,cat:"adv"},
+  {c:"坐下",p:"zuòxià",e:"sit down",s:10,cat:"verb"},
+  {c:"站",p:"zhàn",e:"stand (up)",s:10,cat:"verb"},
+  {c:"准备",p:"zhǔnbèi",e:"prepare / get ready",s:18,cat:"verb"},
+  {c:"休息",p:"xiūxi",e:"rest / take a break",s:16,cat:"verb"},
+  {c:"轮到",p:"lúndào",e:"(it's) someone's turn",s:16,cat:"verb"},
+  {c:"大家",p:"dàjiā",e:"everyone",s:13,cat:"pronoun"},
+  {c:"一点",p:"yīdiǎn",e:"a little / a bit",s:10,cat:"adv"},
+  {c:"一次",p:"yīcì",e:"once / one time",s:7,cat:"measure"},
+  {c:"意思",p:"yìsi",e:"meaning",s:22,cat:"noun"},
+];
+
+const CLASSROOM_EXPRESSIONS = [
+  { c:"我们开始上课", p:"wǒmen kāishǐ shàngkè", e:"Let's start class",
+    note:"开始 means 'to begin/start'. A common way for a teacher to signal the start of a lesson.",
+    chars:[{g:"我",p:"wǒ",e:"I/we",role:"subject (我们 = we)"},{g:"们",p:"men",e:"(plural suffix)",role:"makes 我 plural"},{g:"开",p:"kāi",e:"open/start",role:"开始 = begin"},{g:"始",p:"shǐ",e:"begin",role:"completes 开始"},{g:"上",p:"shàng",e:"to attend",role:"part of 上课"},{g:"课",p:"kè",e:"class/lesson",role:"上课 = have class",link:"上课"}] },
+  { c:"现在上课", p:"xiànzài shàngkè", e:"Class begins now",
+    note:"A more direct announcement that class is starting. 现在 = now.",
+    chars:[{g:"现",p:"xiàn",e:"now (part 1)",role:"现在 = now"},{g:"在",p:"zài",e:"now (part 2)",role:"completes 现在"},{g:"上",p:"shàng",e:"to attend",role:"part of 上课"},{g:"课",p:"kè",e:"class",role:"上课 = have class",link:"上课"}] },
+  { c:"请跟我说", p:"qǐng gēn wǒ shuō", e:"Please repeat after me",
+    note:"跟…说 means 'say along with…'. One of the most common classroom instructions.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"跟",p:"gēn",e:"follow/with",role:"'along with me'",link:"跟"},{g:"我",p:"wǒ",e:"I/me",role:"the teacher"},{g:"说",p:"shuō",e:"say/speak",role:"the action to repeat",link:"说"}] },
+  { c:"请大家读一遍", p:"qǐng dàjiā dú yī biàn", e:"Everyone please read it once",
+    note:"大家 = everyone. 一遍 counts a full pass through a text — common in reading drills.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"大",p:"dà",e:"big (part of 大家)",role:"大家 = everyone",link:"大家"},{g:"家",p:"jiā",e:"home (part of 大家)",role:"completes 大家",link:"大家"},{g:"读",p:"dú",e:"read",role:"main verb",link:"读"},{g:"一",p:"yī",e:"one (part of 一遍)",role:"一遍 = one time through",link:"一遍"},{g:"遍",p:"biàn",e:"time/pass",role:"completes 一遍",link:"一遍"}] },
+  { c:"请打开课本", p:"qǐng dǎkāi kèběn", e:"Please open your textbook",
+    note:"打开 = open (a book, door, device). 课本 = textbook.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"打",p:"dǎ",e:"hit (part of 打开)",role:"打开 = to open"},{g:"开",p:"kāi",e:"open",role:"completes 打开",link:"打开"},{g:"课",p:"kè",e:"lesson (part of 课本)",role:"课本 = textbook"},{g:"本",p:"běn",e:"book/volume",role:"completes 课本",link:"课本"}] },
+  { c:"请举手", p:"qǐng jǔshǒu", e:"Please raise your hand",
+    note:"举手 literally 'raise hand' — used before asking a question or volunteering an answer.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"举",p:"jǔ",e:"raise/lift",role:"举手 = raise hand"},{g:"手",p:"shǒu",e:"hand",role:"completes 举手",link:"举手"}] },
+  { c:"请大声一点", p:"qǐng dàshēng yīdiǎn", e:"Please speak a bit louder",
+    note:"大声 = loudly. 一点 softens the request — 'a little'.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"大",p:"dà",e:"big (part of 大声)",role:"大声 = loudly",link:"大声"},{g:"声",p:"shēng",e:"sound/voice",role:"completes 大声",link:"大声"},{g:"一",p:"yī",e:"one (part of 一点)",role:"一点 = a little",link:"一点"},{g:"点",p:"diǎn",e:"point/bit",role:"completes 一点",link:"一点"}] },
+  { c:"请说慢一点", p:"qǐng shuō màn yīdiǎn", e:"Please speak a bit more slowly",
+    note:"慢 = slow. Essential phrase for beginners in any conversation.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"说",p:"shuō",e:"speak",role:"main verb",link:"说"},{g:"慢",p:"màn",e:"slow",role:"adverb describing 说",link:"慢"},{g:"一",p:"yī",e:"one (part of 一点)",role:"一点 = a little",link:"一点"},{g:"点",p:"diǎn",e:"point/bit",role:"completes 一点",link:"一点"}] },
+  { c:"我听不懂", p:"wǒ tīng bu dǒng", e:"I don't understand (what I hear)",
+    note:"A potential complement: 听 (listen) + 不 + 懂 (understand) = 'can't understand by listening'. 看不懂 = can't understand by reading.",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject"},{g:"听",p:"tīng",e:"listen",role:"verb",link:"听"},{g:"不",p:"bu",e:"not",role:"negation in potential complement"},{g:"懂",p:"dǒng",e:"understand",role:"result — comprehend",link:"懂"}] },
+  { c:"可以再说一次吗", p:"kěyǐ zài shuō yī cì ma", e:"Could you say that again?",
+    note:"可以…吗 is a polite request pattern. 再…一次 = 'one more time'.",
+    chars:[{g:"可",p:"kě",e:"can (part 1)",role:"可以 = can/may"},{g:"以",p:"yǐ",e:"can (part 2)",role:"completes 可以"},{g:"再",p:"zài",e:"again",role:"adverb — repetition",link:"再"},{g:"说",p:"shuō",e:"say",role:"main verb",link:"说"},{g:"一",p:"yī",e:"one (part of 一次)",role:"一次 = one time",link:"一次"},{g:"次",p:"cì",e:"time/occurrence",role:"completes 一次",link:"一次"},{g:"吗",p:"ma",e:"(question particle)",role:"makes it a polite question"}] },
+  { c:"这个字怎么读", p:"zhège zì zěnme dú", e:"How do you read/pronounce this character?",
+    note:"怎么 + verb asks 'how do you do X'. Useful for asking pronunciation.",
+    chars:[{g:"这",p:"zhè",e:"this (part of 这个)",role:"这个 = this"},{g:"个",p:"ge",e:"(measure word)",role:"completes 这个"},{g:"字",p:"zì",e:"character",role:"the object in question"},{g:"怎",p:"zěn",e:"how (part 1)",role:"怎么 = how"},{g:"么",p:"me",e:"how (part 2)",role:"completes 怎么"},{g:"读",p:"dú",e:"read/pronounce",role:"main verb",link:"读"}] },
+  { c:"这是什么意思", p:"zhè shì shénme yìsi", e:"What does this mean?",
+    note:"意思 = meaning. One of the most useful questions for vocabulary clarification.",
+    chars:[{g:"这",p:"zhè",e:"this",role:"subject"},{g:"是",p:"shì",e:"is/be",role:"linking verb"},{g:"什",p:"shén",e:"what (part 1)",role:"什么 = what"},{g:"么",p:"me",e:"what (part 2)",role:"completes 什么"},{g:"意",p:"yì",e:"meaning (part 1)",role:"意思 = meaning",link:"意思"},{g:"思",p:"si",e:"meaning (part 2)",role:"completes 意思",link:"意思"}] },
+  { c:"安静", p:"ānjìng", e:"Quiet, please!",
+    note:"Often said firmly but politely by a teacher to settle a noisy class.",
+    chars:[{g:"安",p:"ān",e:"peaceful (part 1)",role:"安静 = quiet",link:"安静"},{g:"静",p:"jìng",e:"still/calm (part 2)",role:"completes 安静",link:"安静"}] },
+  { c:"下课了", p:"xiàkè le", e:"Class is over",
+    note:"了 marks the change of state — class has now ended. Often greeted with relief!",
+    chars:[{g:"下",p:"xià",e:"to finish (part of 下课)",role:"下课 = end class",link:"下课"},{g:"课",p:"kè",e:"class",role:"completes 下课",link:"下课"},{g:"了",p:"le",e:"(change-of-state particle)",role:"signals the change"}] },
+  { c:"休息一下", p:"xiūxi yīxià", e:"Let's take a short break",
+    note:"一下 softens the verb, suggesting a brief, casual action.",
+    chars:[{g:"休",p:"xiū",e:"rest (part 1)",role:"休息 = rest",link:"休息"},{g:"息",p:"xi",e:"rest (part 2)",role:"completes 休息",link:"休息"},{g:"一",p:"yī",e:"one (part of 一下)",role:"一下 = briefly"},{g:"下",p:"xià",e:"down (part of 一下)",role:"completes 一下"}] },
+  { c:"请坐下", p:"qǐng zuòxià", e:"Please sit down",
+    note:"坐下 = sit down (坐 sit + 下 down, directional complement).",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"坐",p:"zuò",e:"sit (part of 坐下)",role:"坐下 = sit down",link:"坐下"},{g:"下",p:"xià",e:"down",role:"completes 坐下",link:"坐下"}] },
+  { c:"请站起来", p:"qǐng zhàn qǐlái", e:"Please stand up",
+    note:"起来 is a directional complement meaning 'upward'. 站起来 = stand up.",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"站",p:"zhàn",e:"stand",role:"main verb",link:"站"},{g:"起",p:"qǐ",e:"rise (part of 起来)",role:"起来 = directional 'up'"},{g:"来",p:"lái",e:"come (part of 起来)",role:"completes 起来"}] },
+  { c:"准备好了吗", p:"zhǔnbèi hǎo le ma", e:"Are you ready?",
+    note:"准备好 = ready/prepared (好 here means 'to completion'). 了…吗 asks about a current state.",
+    chars:[{g:"准",p:"zhǔn",e:"prepare (part 1)",role:"准备 = prepare",link:"准备"},{g:"备",p:"bèi",e:"prepare (part 2)",role:"completes 准备",link:"准备"},{g:"好",p:"hǎo",e:"good/done",role:"准备好 = ready"},{g:"了",p:"le",e:"(change particle)",role:"current state"},{g:"吗",p:"ma",e:"(question particle)",role:"yes/no question"}] },
+  { c:"我准备好了", p:"wǒ zhǔnbèi hǎo le", e:"I'm ready",
+    note:"The affirmative response to 准备好了吗.",
+    chars:[{g:"我",p:"wǒ",e:"I",role:"subject"},{g:"准",p:"zhǔn",e:"prepare (part 1)",role:"准备 = prepare",link:"准备"},{g:"备",p:"bèi",e:"prepare (part 2)",role:"completes 准备",link:"准备"},{g:"好",p:"hǎo",e:"good/done",role:"准备好 = ready"},{g:"了",p:"le",e:"(change particle)",role:"'now I am ready'"}] },
+  { c:"轮到你了", p:"lúndào nǐ le", e:"It's your turn",
+    note:"轮到 + person = 'the turn has arrived at...'. Common in games and group reading.",
+    chars:[{g:"轮",p:"lún",e:"turn (part 1)",role:"轮到 = it's (someone's) turn",link:"轮到"},{g:"到",p:"dào",e:"arrive (part 2)",role:"completes 轮到",link:"轮到"},{g:"你",p:"nǐ",e:"you",role:"the person whose turn it is"},{g:"了",p:"le",e:"(change particle)",role:"the turn has now arrived"}] },
+  { c:"请关上课本", p:"qǐng guānshàng kèběn", e:"Please close your textbook",
+    note:"关上 = close (opposite of 打开).",
+    chars:[{g:"请",p:"qǐng",e:"please",role:"polite marker",link:"请"},{g:"关",p:"guān",e:"close (part 1)",role:"关上 = close",link:"关上"},{g:"上",p:"shàng",e:"on/up (part 2)",role:"completes 关上",link:"关上"},{g:"课",p:"kè",e:"lesson (part of 课本)",role:"课本 = textbook"},{g:"本",p:"běn",e:"book",role:"completes 课本",link:"课本"}] },
+];
+
+// ─────────────────────────────────────────────
+// COLLECTIONS — switchable decks of characters/expressions
+// ─────────────────────────────────────────────
+const COLLECTIONS = [
+  { id:"hsk1", name:"HSK 1", subtitle:"HSK 1 Study", chars:HSK1, compounds:HSK1_COMPOUNDS, expressions:HSK1_EXPRESSIONS },
+  { id:"classroom", name:"Classroom Language", subtitle:"Classroom Phrases", chars:CLASSROOM_CHARS, compounds:[], expressions:CLASSROOM_EXPRESSIONS },
+];
+
+let activeCollection = COLLECTIONS[0];
 
 // ─────────────────────────────────────────────
 // CACHE — File System Access API with localStorage fallback
@@ -843,16 +967,61 @@ function idbSet(key, value) {
 // ─────────────────────────────────────────────
 // CACHE ACCESSORS
 // ─────────────────────────────────────────────
-function cacheKey(word) { return 'c:' + word.c; }
+function cacheKey(word) {
+  const prefix = activeCollection.id === 'hsk1' ? '' : activeCollection.id + ':';
+  return prefix + 'c:' + word.c;
+}
 function loadFromCache(word) { return cacheData[cacheKey(word)] || null; }
 function saveToCache(word, info) {
   cacheData[cacheKey(word)] = info;
   saveCache();
 }
-function cachedCount() { return Object.keys(cacheData).filter(k => k.startsWith('c:')).length; }
+function cachedCount() {
+  const prefix = activeCollection.id === 'hsk1' ? 'c:' : activeCollection.id + ':c:';
+  return Object.keys(cacheData).filter(k => k.startsWith(prefix)).length;
+}
 function updateCacheStats() {
   const el = document.getElementById('cacheStats');
-  if (el) el.textContent = `${cachedCount()} / ${HSK1.length} cached`;
+  if (el) el.textContent = `${cachedCount()} / ${activeCollection.chars.length} cached`;
+}
+
+// ─────────────────────────────────────────────
+// COLLECTIONS
+// ─────────────────────────────────────────────
+function populateCollectionSelect() {
+  const sel = document.getElementById('collectionSelect');
+  sel.innerHTML = COLLECTIONS.map(c => `<option value="${c.id}"${c.id===activeCollection.id?' selected':''}>${c.name}</option>`).join('');
+}
+
+function switchCollection(id) {
+  const next = COLLECTIONS.find(c => c.id === id);
+  if (!next || next === activeCollection) return;
+  activeCollection = next;
+  try { localStorage.setItem('activeCollectionId', activeCollection.id); } catch(e) {}
+
+  document.getElementById('collectionSubtitle').textContent = activeCollection.subtitle;
+  document.getElementById('collectionSelect').value = activeCollection.id;
+
+  // Reset selection state and filters
+  activeIdx = null;
+  activeExprIdx = null;
+  activeWord = null;
+  document.getElementById('searchInput').value = '';
+  document.getElementById('catFilter').value = '';
+  document.getElementById('sortSelect').value = 'hsk';
+  document.getElementById('exprSearch').value = '';
+
+  filterChars();
+  filterExprs();
+  updateCacheStats();
+
+  // Reset detail panel to empty state
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = `
+    <div class="detail-empty" id="emptyState">
+      <div class="empty-char">字</div>
+      <p>Select a character or expression to begin</p>
+    </div>`;
 }
 
 // ─────────────────────────────────────────────
@@ -868,7 +1037,7 @@ function switchTab(id, btn) {
 // ─────────────────────────────────────────────
 // CHARACTERS
 // ─────────────────────────────────────────────
-let filtered = [...HSK1];
+let filtered = [...activeCollection.chars];
 let activeIdx = null;
 let activeWord = null;
 let activeExprIdx = null;
@@ -877,7 +1046,7 @@ function filterChars() {
   const q = document.getElementById('searchInput').value.toLowerCase();
   const cat = document.getElementById('catFilter').value;
   const sort = document.getElementById('sortSelect').value;
-  filtered = HSK1.filter(w => {
+  filtered = activeCollection.chars.filter(w => {
     const mq = !q || w.c.includes(q) || w.p.toLowerCase().includes(q) || w.e.toLowerCase().includes(q);
     const mc = !cat || w.cat === cat;
     return mq && mc;
@@ -919,15 +1088,15 @@ function selectChar(idx, switchToTab) {
 
 // Navigate to a character by its glyph (used from compound/expression links)
 function goToChar(glyph) {
-  const idx = HSK1.findIndex(w => w.c[0] === glyph || w.c === glyph);
-  if (idx === -1) { toast(`${glyph} is not in HSK 1 list`); return; }
+  const idx = activeCollection.chars.findIndex(w => w.c[0] === glyph || w.c === glyph);
+  if (idx === -1) { toast(`${glyph} is not in this collection`); return; }
   // Reset filter so character is visible
   document.getElementById('searchInput').value = '';
   document.getElementById('catFilter').value = '';
   document.getElementById('sortSelect').value = 'hsk';
-  filtered = [...HSK1];
+  filtered = [...activeCollection.chars];
   document.getElementById('charCount').textContent = `${filtered.length} characters`;
-  const filtIdx = filtered.findIndex(w => w.c === HSK1[idx].c);
+  const filtIdx = filtered.findIndex(w => w.c === activeCollection.chars[idx].c);
   selectChar(filtIdx, true);
   // Scroll char into view
   setTimeout(() => {
@@ -942,7 +1111,7 @@ function goToChar(glyph) {
 function renderCompoundChars(chars) {
   return chars.map(ch => {
     if (ch.link) {
-      const target = HSK1.find(w => w.c === ch.link || w.c[0] === ch.link);
+      const target = activeCollection.chars.find(w => w.c === ch.link || w.c[0] === ch.link);
       if (target) return `<button class="compound-char-link" onclick="goToChar('${ch.g}')" title="Go to ${ch.g}">${ch.g}</button>`;
     }
     return `<span class="compound-char-nolink" title="${ch.p}: ${ch.e}">${ch.g}</span>`;
@@ -957,7 +1126,7 @@ function showCharDetail(word, idx) {
   const cached = loadFromCache(word);
 
   // Find relevant compounds
-  const relatedCompounds = COMPOUNDS.filter(cp =>
+  const relatedCompounds = activeCollection.compounds.filter(cp =>
     cp.chars.some(ch => ch.g === word.c[0] || ch.link === word.c)
   );
 
@@ -1095,11 +1264,11 @@ Rules: analyze primary character ${word.c[0]}. Example sentences use mostly HSK 
 // ─────────────────────────────────────────────
 // EXPRESSIONS
 // ─────────────────────────────────────────────
-let filteredExprs = [...EXPRESSIONS];
+let filteredExprs = [...activeCollection.expressions];
 
 function filterExprs() {
   const q = document.getElementById('exprSearch').value.toLowerCase();
-  filteredExprs = EXPRESSIONS.filter(ex =>
+  filteredExprs = activeCollection.expressions.filter(ex =>
     !q || ex.c.includes(q) || ex.p.toLowerCase().includes(q) || ex.e.toLowerCase().includes(q)
   );
   document.getElementById('exprCount').textContent = `${filteredExprs.length} expression${filteredExprs.length!==1?'s':''}`;
@@ -1188,9 +1357,20 @@ function toast(msg) {
 // INIT
 // ─────────────────────────────────────────────
 (async () => {
+  try {
+    const savedId = localStorage.getItem('activeCollectionId');
+    const saved = COLLECTIONS.find(c => c.id === savedId);
+    if (saved) activeCollection = saved;
+  } catch(e) {}
+
+  document.getElementById('collectionSubtitle').textContent = activeCollection.subtitle;
+  populateCollectionSelect();
+  filtered = [...activeCollection.chars];
+  filteredExprs = [...activeCollection.expressions];
+
   await initCache();
-  renderGrid();
-  renderExprList();
+  filterChars();
+  filterExprs();
   updateCacheStats();
 })();
 </script>
